@@ -11,7 +11,6 @@ var app = builder.Build();
 
 app.MapGet("/products", async (ShopContext dbContext) =>
     await dbContext.Products
-    .Select(p => p.ToDto())
     .ToListAsync());
 
 app.Run();
