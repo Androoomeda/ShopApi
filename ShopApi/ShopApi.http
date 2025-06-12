@@ -2,3 +2,7 @@
 
 GET {{ShopApi_HostAddress}}/products
 Accept: application/json
+###
+
+Get {{ShopApi_HostAddress}}/images/catalog1.jpg
+###
