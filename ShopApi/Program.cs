@@ -12,6 +12,7 @@ namespace ShopApi
 
             var connectionString = builder.Configuration.GetConnectionString("Shop");
             builder.Services.AddSqlServer<ShopContext>(connectionString);
+
             builder.Services.AddCors(options =>
             {
                 options.AddDefaultPolicy(builder =>
@@ -27,6 +28,11 @@ namespace ShopApi
             app.MapProductsEndpoints();
 
             app.UseCors();
+
+            app.UseStaticFiles();
+            app.UseDefaultFiles();
+
+            app.UseHttpsRedirection();
 
             app.Run();
         }
