@@ -3,8 +3,8 @@ namespace ShopApi.Dtos;
 public record class ProductDto(
   int Id,
   string Name,
-  decimal Price,
+  string? Description,
   string Color,
-  string Description,
-  string Image
+  decimal Price,
+  decimal DiscountPrice
 );
