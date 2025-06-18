@@ -14,4 +14,18 @@ public class ShopContext(DbContextOptions<ShopContext> options)
   public DbSet<User> Users => Set<User>();
   public DbSet<Cart> Carts => Set<Cart>();
   public DbSet<CartItem> CartItems => Set<CartItem>();
+
+  protected override void OnModelCreating(ModelBuilder modelBuilder)
+  {
+    modelBuilder.Entity<User>()
+        .HasOne(U => U.Cart)
+        .WithOne(c => c.User)
+        .HasForeignKey<Cart>(c => c.UserId);
+
+    modelBuilder.Entity<Product>()
+      .HasOne(p => p.Category)
+      .WithMany(c => c.Products)
+      .HasForeignKey(P => P.CategoryId);
+  }
+
 }
