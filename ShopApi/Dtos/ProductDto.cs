@@ -5,6 +5,7 @@ public record class ProductDto(
   string Name,
   string? Description,
   string Color,
+  string CategoryName,
   decimal Price,
-  decimal DiscountPrice
+  decimal? DiscountPrice
 );
