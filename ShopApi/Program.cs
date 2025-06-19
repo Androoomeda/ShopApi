@@ -10,6 +10,9 @@ namespace ShopApi
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddControllers();
+            builder.Services.AddSwaggerGen();
+
             var connectionString = builder.Configuration.GetConnectionString("Shop");
             builder.Services.AddSqlServer<ShopContext>(connectionString);
 
@@ -25,8 +28,7 @@ namespace ShopApi
 
             var app = builder.Build();
 
-            app.MapProductsEndpoints();
-
+            app.MapControllers();
             app.UseCors();
 
             app.UseStaticFiles();

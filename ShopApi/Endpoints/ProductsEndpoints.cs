@@ -2,18 +2,49 @@ namespace ShopApi.Endpoints;
 
 using ShopApi.Data;
 using Microsoft.EntityFrameworkCore;
-using ShopApi.Dtos;
-using System.IO.Pipes;
 using ShopApi.Mapping;
+using Microsoft.AspNetCore.Mvc;
+using ShopApi.Entities;
 
-public static class ProductsEndpoints
+
+[ApiController]
+[Route("api/[controller]")]
+public class ProductsController : ControllerBase
 {
-  public static void MapProductsEndpoints(this WebApplication app)
+  private readonly ShopContext context;
+
+  public ProductsController(ShopContext context)
   {
-    app.MapGet("/products", async (ShopContext dbContext) =>
-                  await dbContext.Products
-                  .Include(p => p.Category)
-                  .Select(p => p.ToDto())
-                  .ToListAsync());
+    this.context = context;
+  }
+
+  [HttpGet]
+  [ProducesResponseType(200, Type = typeof(IEnumerable<Product>))]
+  public async Task<IActionResult> GetProducts()
+  {
+    var products = await context.Products
+      .Include(p => p.Category)
+      .Select(p => p.ToDto())
+      .ToListAsync();
+
+    return Ok(products);
+  }
+
+  [HttpGet("{id}")]
+  [ProducesResponseType(200, Type = typeof(Product))]
+  [ProducesResponseType(400)]
+  public async Task<IActionResult> GetById(int id)
+  {
+    var product = await context.Products
+      .Include(p => p.Category)
+      .Where(p => p.Id == id)
+      .Select(p => p.ToDto())
+      .FirstOrDefaultAsync();
+
+    if (product == null)
+      return NotFound();
+
+
+    return Ok(product);
   }
 }

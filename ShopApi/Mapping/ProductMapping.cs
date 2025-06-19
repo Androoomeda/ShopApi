@@ -18,5 +18,19 @@ public static class ProductMapping
       product.DiscountPrice
     );
   }
+
+  public static ProductDto ToDetailsDto(this Product product)
+  {
+    return new ProductDto
+    (
+      product.Id,
+      product.Name,
+      product.Description,
+      product.Color,
+      product.Category.Name,
+      product.Price,
+      product.DiscountPrice
+    );
+  }
 }
 
