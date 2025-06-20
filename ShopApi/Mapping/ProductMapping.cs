@@ -11,25 +11,26 @@ public static class ProductMapping
     (
       product.Id,
       product.Name,
-      product.Description,
       product.Color,
-      product.Category.Name,
       product.Price,
       product.DiscountPrice
     );
   }
 
-  public static ProductDto ToDetailsDto(this Product product)
+  public static ProductDetailsDto ToDetailsDto(this Product product, List<string> sizesLabel)
   {
-    return new ProductDto
+    return new ProductDetailsDto
     (
       product.Id,
       product.Name,
       product.Description,
       product.Color,
+      product.CategoryId,
       product.Category.Name,
       product.Price,
-      product.DiscountPrice
+      product.DiscountPrice,
+      product.ProductImages.Select(img => img.ImagePath).ToList(),
+      sizesLabel
     );
   }
 }
