@@ -1,3 +1,6 @@
+using System.Security.Cryptography;
+using ShopApi.Entities;
+
 namespace ShopApi.Dtos;
 
 public record class ProductDetailsDto
@@ -9,5 +12,7 @@ public record class ProductDetailsDto
   int CategoryId,
   string CategoryName,
   decimal Price,
-  decimal? DiscountPrice
+  decimal? DiscountPrice,
+  ICollection<string> ImagesPath,
+  ICollection<string> SizesLabel
 );

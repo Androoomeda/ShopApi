@@ -18,14 +18,23 @@ public class ShopContext(DbContextOptions<ShopContext> options)
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
     modelBuilder.Entity<User>()
-        .HasOne(U => U.Cart)
+        .HasOne(u => u.Cart)
         .WithOne(c => c.User)
         .HasForeignKey<Cart>(c => c.UserId);
 
     modelBuilder.Entity<Product>()
       .HasOne(p => p.Category)
       .WithMany(c => c.Products)
-      .HasForeignKey(P => P.CategoryId);
-  }
+      .HasForeignKey(p => p.CategoryId);
+      
+    modelBuilder.Entity<ProductImage>()
+      .HasOne(pi => pi.Product)
+      .WithMany(p => p.ProductImages)
+      .HasForeignKey(pi => pi.ProductId);
 
+    modelBuilder.Entity<CartItem>()
+    .HasOne(ci => ci.Size)
+    .WithMany(s => s.CartItems)
+    .HasForeignKey(ci => ci.SizeId);
+  }
 }
