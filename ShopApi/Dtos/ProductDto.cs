@@ -6,5 +6,6 @@ public record class ProductDto
   string Name,
   string Color,
   decimal Price,
-  decimal? DiscountPrice
+  decimal? DiscountPrice,
+  string ImagePath
 );
