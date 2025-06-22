@@ -13,7 +13,8 @@ public static class ProductMapping
       product.Name,
       product.Color,
       product.Price,
-      product.DiscountPrice
+      product.DiscountPrice,
+      product.ProductImages.First().ImagePath
     );
   }
 

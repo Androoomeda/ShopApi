@@ -25,6 +25,7 @@ public class ProductsController : ControllerBase
   {
     var products = await context.Products
     .Include(p => p.Category)
+    .Include(p => p.ProductImages)
     .Select(p => p.ToDto())
     .ToListAsync();
 
