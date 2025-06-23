@@ -39,6 +39,7 @@ public class CategoriesController : ControllerBase
 
     var products = await context.Products
     .Include(p => p.Category)
+    .Include(p => p.ProductImages)
     .Where(p => p.CategoryId == categoryId)
     .Select(p => p.ToDto())
     .ToListAsync();
