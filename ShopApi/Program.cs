@@ -1,6 +1,15 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using ShopApi.Data;
-using ShopApi.Endpoints;
+using ShopApi.Entities;
+using ShopApi.Repositories;
+using ShopApi.Services;
+using ShopApi.Utilities;
+using System.Text;
 
 namespace ShopApi
 {
@@ -9,14 +18,47 @@ namespace ShopApi
     public static void Main(string[] args)
     {
       var builder = WebApplication.CreateBuilder(args);
+      var services = builder.Services;
 
-      builder.Services.AddControllers();
-      builder.Services.AddSwaggerGen();
+      var jwtOptions = builder.Configuration.GetSection(nameof(JwtOptions));
+      services.Configure<JwtOptions>(jwtOptions);
+
+      services.AddControllers();
+
+      services.AddSwaggerGen();
 
       var connectionString = builder.Configuration.GetConnectionString("Shop");
-      builder.Services.AddSqlServer<ShopContext>(connectionString);
+      services.AddSqlServer<ShopContext>(connectionString);
 
-      builder.Services.AddCors(options =>
+      services.AddScoped<ShopUserRepository>();
+      services.AddScoped<ShopUserService>();
+      services.AddScoped<JwtProvider>();
+
+      services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+      .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+      {
+        options.TokenValidationParameters = new()
+        {
+          ValidateIssuer = false,
+          ValidateAudience = false,
+          ValidateLifetime = true,
+          ValidateIssuerSigningKey = true,
+          IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key))
+        };
+        options.Events = new JwtBearerEvents
+        {
+          OnMessageReceived = context =>
+          {
+            context.Token = context.Request.Cookies["tasty-cookies"];
+
+            return Task.CompletedTask;
+          }
+        };
+      });
+
+      services.AddAuthorization();
+
+      services.AddCors(options =>
       {
         options.AddDefaultPolicy(builder =>
         {
@@ -38,13 +80,25 @@ namespace ShopApi
         });
       }
 
+      app.UseHttpsRedirection();
+
+      // app.UseCookiePolicy(new CookiePolicyOptions
+      // {
+      //   MinimumSameSitePolicy = SameSiteMode.Strict,
+      //   HttpOnly = HttpOnlyPolicy.Always,
+      //   Secure = CookieSecurePolicy.Always
+      // });
+
       app.MapControllers();
+
       app.UseCors();
+
+      app.UseAuthentication();
+      app.UseAuthorization();
 
       app.UseStaticFiles();
       app.UseDefaultFiles();
 
-      app.UseHttpsRedirection();
 
       app.Run();
     }
