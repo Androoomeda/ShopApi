@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ShopApi.Mapping;
 using ShopApi.Data;
 using ShopApi.Entities;
-using ShopApi.Dtos;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace ShopApi.Endpoints;
 
@@ -62,8 +61,15 @@ public class ProductsController : ControllerBase
     return Ok(product.ToDetailsDto(sizesLabel));
   }
 
-  // TODO: сделать API для админа
+  [HttpPost("favorite")]
+  [Authorize]
+  public async Task<IActionResult> AddProductToFavorite()
+  {
+    return Ok("something");
+  }
+
   // [HttpPost]
+  // TODO: сделать API для админа
 
   // [HttpPut]
 
