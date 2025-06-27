@@ -28,19 +28,17 @@ public class CategoriesController : ControllerBase
     return Ok(categories);
   }
 
-  [HttpGet("{categoryId}")]
+  [HttpGet("{categoryName}")]
   [ProducesResponseType(200, Type = typeof(Product))]
   [ProducesResponseType(400)]
   [ProducesResponseType(404)]
-  public async Task<IActionResult> GetProductsByCategory(int categoryId)
+  public async Task<IActionResult> GetProductsByCategory(string categoryName)
   {
-    if (categoryId <= 0)
-      return BadRequest("Id не может быть меньше или равен 0");
 
     var products = await context.Products
     .Include(p => p.Category)
     .Include(p => p.ProductImages)
-    .Where(p => p.CategoryId == categoryId)
+    .Where(p => p.Category.Name == categoryName)
     .Select(p => p.ToDto())
     .ToListAsync();
 
