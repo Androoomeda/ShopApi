@@ -4,6 +4,7 @@ using ShopApi.Mapping;
 using ShopApi.Data;
 using ShopApi.Entities;
 using Microsoft.AspNetCore.Authorization;
+using ShopApi.Repositories;
 
 namespace ShopApi.Endpoints;
 
@@ -11,22 +12,18 @@ namespace ShopApi.Endpoints;
 [Route("api/[controller]")]
 public class ProductsController : ControllerBase
 {
-  private readonly ShopContext context;
+  private readonly ProductRepository _productRepository;
 
-  public ProductsController(ShopContext context)
+  public ProductsController(ProductRepository productRepository)
   {
-    this.context = context;
+    _productRepository = productRepository;
   }
 
   [HttpGet]
   [ProducesResponseType(200, Type = typeof(IEnumerable<Product>))]
   public async Task<IActionResult> GetProducts()
   {
-    var products = await context.Products
-    .Include(p => p.Category)
-    .Include(p => p.ProductImages)
-    .Select(p => p.ToDto())
-    .ToListAsync();
+    var products = await _productRepository.Get();
 
     return Ok(products);
   }
@@ -40,25 +37,9 @@ public class ProductsController : ControllerBase
     if (productId <= 0)
       return BadRequest("Id не может быть меньше или равен 0");
 
-    var product = await context.Products
-    .Include(p => p.Category)
-    .Include(p => p.ProductImages)
-    .Where(p => p.Id == productId)
-    .FirstOrDefaultAsync();
+    var product = await _productRepository.GetById(productId);
 
-
-    List<string> sizesLabel;
-    if (product != null)
-    {
-      sizesLabel = await context.Sizes
-      .Where(s => s.SizeType == product.Category.SizeType)
-      .Select(s => s.Label)
-      .ToListAsync();
-    }
-    else
-      return NotFound();
-
-    return Ok(product.ToDetailsDto(sizesLabel));
+    return Ok(product);
   }
 
   [HttpPost("favorite")]

@@ -6,11 +6,11 @@ namespace ShopApi.Repositories;
 
 public class ShopUserRepository
 {
-  private readonly ShopContext context;
+  private readonly ShopContext _context;
 
   public ShopUserRepository(ShopContext context)
   {
-    this.context = context;
+    this._context = context;
   }
 
   public async Task Add(string username, string email, string hashedPassword)
@@ -30,13 +30,13 @@ public class ShopUserRepository
 
     newUser.Cart = cart;
 
-    await context.ShopUsers.AddAsync(newUser);
-    await context.SaveChangesAsync();
+    await _context.ShopUsers.AddAsync(newUser);
+    await _context.SaveChangesAsync();
   }
 
   public async Task<ShopUser> GetByEmail(string email)
   {
-    var user = await context.ShopUsers
+    var user = await _context.ShopUsers
     .AsNoTracking()
     .FirstOrDefaultAsync(u => u.Email == email) ?? throw new Exception("User not found");
 
