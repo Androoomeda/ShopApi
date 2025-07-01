@@ -1,8 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using ShopApi.Mapping;
-using ShopApi.Data;
 using ShopApi.Entities;
+using ShopApi.Repositories;
 
 namespace ShopApi.Controllers;
 
@@ -10,20 +8,18 @@ namespace ShopApi.Controllers;
 [Route("api/[controller]")]
 public class CategoriesController : ControllerBase
 {
-  private readonly ShopContext context;
+  private readonly CategoryRepository _categoryRepository;
 
-  public CategoriesController(ShopContext context)
+  public CategoriesController(CategoryRepository categoryRepository)
   {
-    this.context = context;
+    _categoryRepository =  categoryRepository;
   }
 
   [HttpGet]
   [ProducesResponseType(200, Type = typeof(IEnumerable<Category>))]
   public async Task<IActionResult> GetCategories()
   {
-    var categories = await context.Categories
-    .Select(c => c.ToDto())
-    .ToListAsync();
+    var categories = await _categoryRepository.Get();
 
     return Ok(categories);
   }
@@ -34,13 +30,7 @@ public class CategoriesController : ControllerBase
   [ProducesResponseType(404)]
   public async Task<IActionResult> GetProductsByCategory(string categoryName)
   {
-
-    var products = await context.Products
-    .Include(p => p.Category)
-    .Include(p => p.ProductImages)
-    .Where(p => p.Category.Name == categoryName)
-    .Select(p => p.ToDto())
-    .ToListAsync();
+    var products = await _categoryRepository.GetProductsByCategoryName(categoryName);
 
     if (products.Count == 0)
       return NotFound();
