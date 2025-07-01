@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Identity;
-
 namespace ShopApi.Entities;
 
 public class ShopUser

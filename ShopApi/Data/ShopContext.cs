@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using ShopApi.Entities;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace ShopApi.Data;
 

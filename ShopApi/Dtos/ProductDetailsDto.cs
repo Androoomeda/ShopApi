@@ -1,6 +1,3 @@
-using System.Security.Cryptography;
-using ShopApi.Entities;
-
 namespace ShopApi.Dtos;
 
 public record class ProductDetailsDto
