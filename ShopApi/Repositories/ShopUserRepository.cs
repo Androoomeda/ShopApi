@@ -20,25 +20,27 @@ public class ShopUserRepository
       Username = username,
       Email = email,
       PasswordHash = hashedPassword,
+      Cart = new Cart()
     };
-
-    var cart = new Cart
-    {
-      User = newUser,
-      UserId = newUser.Id
-    };
-
-    newUser.Cart = cart;
 
     await _context.ShopUsers.AddAsync(newUser);
     await _context.SaveChangesAsync();
   }
 
-  public async Task<ShopUser> GetByEmail(string email)
+  public async Task<ShopUser?> GetByEmail(string email)
   {
     var user = await _context.ShopUsers
     .AsNoTracking()
-    .FirstOrDefaultAsync(u => u.Email == email) ?? throw new Exception("User not found");
+    .FirstOrDefaultAsync(u => u.Email == email);
+
+    return user;
+  }
+
+  public async Task<ShopUser?> GetByUsername(string username)
+  {
+    var user = await _context.ShopUsers
+    .AsNoTracking()
+    .FirstOrDefaultAsync(u => u.Username == username);
 
     return user;
   }

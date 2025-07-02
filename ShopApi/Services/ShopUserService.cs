@@ -1,3 +1,4 @@
+using ShopApi.Dtos;
 using ShopApi.Repositories;
 using ShopApi.Utilities;
 
@@ -14,22 +15,32 @@ public class ShopUserService
     this.jwtProvider = jwtProvider;
   }
 
-  public async Task Register(string username, string email, string password)
+  public async Task Register(RegisterUserRequest request)
   {
-    var hashedPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(password);;
+    var existingUsername = await shopUserRepository.GetByUsername(request.Username);
+    var existingEmail = await shopUserRepository.GetByEmail(request.Email);
 
-    await shopUserRepository.Add(username, email, hashedPassword);
+    if (existingUsername != null)
+      throw new FieldValidationException("username", "Такой логин уже существует");
+    else if (existingEmail != null)
+      throw new FieldValidationException("email", "Данная почта уже зарегистрирована");
+
+    var hashedPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(request.Password); ;
+
+    await shopUserRepository.Add(request.Username, request.Email, hashedPassword);
   }
 
-  public async Task<string> Login(string email, string password)
+  public async Task<string> Login(LoginUserRequest request)
   {
-    var user = await shopUserRepository.GetByEmail(email);
-    var result = BCrypt.Net.BCrypt.EnhancedVerify(password, user.PasswordHash);
+    var existingUser = await shopUserRepository.GetByEmail(request.Email)
+      ?? throw new FieldValidationException("email", "Неверная почта");
 
-    if(!result)
-      throw new Exception("Failed to login");
+    var isPasswordValid = BCrypt.Net.BCrypt.EnhancedVerify(request.Password, existingUser.PasswordHash);
 
-    var token = jwtProvider.GenerateToken(user);
+    if(!isPasswordValid)
+      throw new FieldValidationException("password", "Неверный пароль");
+
+    var token = jwtProvider.GenerateToken(existingUser);
 
     return token;
   }
