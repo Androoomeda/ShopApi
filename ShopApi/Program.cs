@@ -37,6 +37,7 @@ namespace ShopApi
         options.AddDefaultPolicy(builder =>
         {
           builder.WithOrigins("http://127.0.0.1:5500")
+                .AllowCredentials()
                 .AllowAnyHeader()
                 .AllowAnyMethod();
         });
@@ -55,13 +56,6 @@ namespace ShopApi
       }
 
       app.UseHttpsRedirection();
-
-      app.UseCookiePolicy(new CookiePolicyOptions
-      {
-        MinimumSameSitePolicy = SameSiteMode.Strict,
-        HttpOnly = HttpOnlyPolicy.Always,
-        Secure = CookieSecurePolicy.Always
-      });
       
       app.UseStaticFiles();
       app.UseDefaultFiles();

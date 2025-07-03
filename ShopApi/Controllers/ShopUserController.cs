@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using ShopApi.Dtos;
 using ShopApi.Services;
 using ShopApi.Utilities;
@@ -10,10 +12,12 @@ namespace ShopApi.Controllers;
 public class ShopUserController : ControllerBase
 {
   private readonly ShopUserService _shopUserService;
+  private readonly JwtOptions _options;
 
-  public ShopUserController(ShopUserService shopUserService)
+  public ShopUserController(ShopUserService shopUserService, IOptions<JwtOptions> options)
   {
     _shopUserService = shopUserService;
+    _options = options.Value;
   }
 
   [HttpPost("register")]
@@ -39,10 +43,27 @@ public class ShopUserController : ControllerBase
   [HttpPost("login")]
   public async Task<IActionResult> Login([FromBody] LoginUserRequest request)
   {
-    var token = await _shopUserService.Login(request);
+    try
+    {
+      var token = await _shopUserService.Login(request);
 
-    Response.Cookies.Append("tasty-cookies", token);
+      Response.Cookies.Append("tasty-cookies", token, new CookieOptions
+      {
+        HttpOnly = true,
+        Secure = true,
+        SameSite = SameSiteMode.None,
+        Expires = DateTimeOffset.UtcNow.AddHours(_options.ExpiresHours)
+      });
 
-    return Ok();
+      return Ok(new { token = token });
+    }
+    catch (FieldValidationException ex)
+    {
+      return BadRequest(new { field = ex.Field, message = ex.Message });
+    }
+    catch (Exception)
+    {
+      return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
+    }
   }
 }
