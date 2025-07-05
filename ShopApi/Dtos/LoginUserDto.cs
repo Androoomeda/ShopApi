@@ -2,9 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ShopApi.Dtos;
 
-public record class RegisterUserRequest
+public record class LoginUserDto
 (
-  [Required] string Username,
   [Required] string Email,
   [Required] string Password
 );

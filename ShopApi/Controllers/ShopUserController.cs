@@ -23,7 +23,7 @@ public class ShopUserController : ControllerBase
   [HttpPost("register")]
   [ProducesResponseType(400)]
   [ProducesResponseType(500)]
-  public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
+  public async Task<IActionResult> Register([FromBody] RegisterUserDto request)
   {
     try
     {
@@ -41,7 +41,7 @@ public class ShopUserController : ControllerBase
   }
 
   [HttpPost("login")]
-  public async Task<IActionResult> Login([FromBody] LoginUserRequest request)
+  public async Task<IActionResult> Login([FromBody] LoginUserDto request)
   {
     try
     {

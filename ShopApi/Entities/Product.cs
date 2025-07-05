@@ -1,3 +1,5 @@
+using ShopApi.Data;
+
 namespace ShopApi.Entities;
 
 public class Product
@@ -13,4 +15,5 @@ public class Product
   public ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
   public ICollection<ShopUser> UsersWhoFavorited { get; set; } = new List<ShopUser>();
   public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+  public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
 }

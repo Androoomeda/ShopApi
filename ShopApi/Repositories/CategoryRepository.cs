@@ -5,14 +5,9 @@ using ShopApi.Mapping;
 
 namespace ShopApi.Repositories;
 
-public class CategoryRepository
+public class CategoryRepository(ShopContext context)
 {
-  private readonly ShopContext _context;
-
-  public CategoryRepository(ShopContext context)
-  {
-    _context = context;
-  }
+  private readonly ShopContext _context = context;
 
   public async Task<List<CategoryDto>> Get()
   {

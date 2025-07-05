@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ShopApi.Repositories;
 
-public class ProductRepository
+public class ProductRepository(ShopContext context)
 {
-  private readonly ShopContext _context;
-
-  public ProductRepository(ShopContext context)
-  {
-    _context = context;
-  }
+  private readonly ShopContext _context = context;
 
   public async Task<List<ProductDto>> Get()
   {

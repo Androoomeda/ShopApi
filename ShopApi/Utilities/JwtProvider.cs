@@ -13,7 +13,11 @@ public class JwtProvider(IOptions<JwtOptions> options)
 
   public string GenerateToken(ShopUser user)
   {
-    Claim[] claims = [new("userId", user.Id.ToString())];
+    Claim[] claims =
+    [
+      new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+      new Claim(JwtRegisteredClaimNames.UniqueName, user.Username)
+    ];
 
     var signingCredentials = new SigningCredentials(
       new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Key)),

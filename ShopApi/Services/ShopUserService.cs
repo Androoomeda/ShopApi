@@ -15,7 +15,7 @@ public class ShopUserService
     this.jwtProvider = jwtProvider;
   }
 
-  public async Task Register(RegisterUserRequest request)
+  public async Task Register(RegisterUserDto request)
   {
     var existingUsername = await shopUserRepository.GetByUsername(request.Username);
     var existingEmail = await shopUserRepository.GetByEmail(request.Email);
@@ -30,7 +30,7 @@ public class ShopUserService
     await shopUserRepository.Add(request.Username, request.Email, hashedPassword);
   }
 
-  public async Task<string> Login(LoginUserRequest request)
+  public async Task<string> Login(LoginUserDto request)
   {
     var existingUser = await shopUserRepository.GetByEmail(request.Email)
       ?? throw new FieldValidationException("email", "Неверная почта");

@@ -3,7 +3,7 @@ using ShopApi.Entities;
 
 namespace ShopApi.Data;
 
-public class ShopContext(DbContextOptions<ShopContext> options) 
+public class ShopContext(DbContextOptions<ShopContext> options)
   : DbContext(options)
 {
 
@@ -40,27 +40,38 @@ public class ShopContext(DbContextOptions<ShopContext> options)
       .HasForeignKey(pi => pi.ProductId)
       .OnDelete(DeleteBehavior.Cascade);
 
-    modelBuilder.Entity<CartItem>()
-      .HasOne(ci => ci.Size)
-      .WithMany(s => s.CartItems)
-      .HasForeignKey(ci => ci.SizeId)
-      .OnDelete(DeleteBehavior.Restrict);
+    modelBuilder.Entity<CartItem>(entity =>
+    {
+      entity.HasOne(ci => ci.Size)
+        .WithMany(s => s.CartItems)
+        .HasForeignKey(ci => ci.SizeId)
+        .OnDelete(DeleteBehavior.Restrict);
 
-    modelBuilder.Entity<CartItem>()
-      .HasOne(ci => ci.Product)
-      .WithMany(p => p.CartItems)
-      .HasForeignKey(ci => ci.ProductId)
-      .OnDelete(DeleteBehavior.Cascade);
+      entity.HasOne(ci => ci.Product)
+        .WithMany(p => p.CartItems)
+        .HasForeignKey(ci => ci.ProductId)
+        .OnDelete(DeleteBehavior.Cascade);
 
-    modelBuilder.Entity<CartItem>()
-      .HasOne(ci => ci.Cart)
-      .WithMany(c => c.CartItems)
-      .HasForeignKey(ci => ci.CartId)
-      .OnDelete(DeleteBehavior.Cascade);
+      entity.HasOne(ci => ci.Cart)
+        .WithMany(c => c.CartItems)
+        .HasForeignKey(ci => ci.CartId)
+        .OnDelete(DeleteBehavior.Cascade);
+    });
 
-    modelBuilder.Entity<ShopUser>()
-      .HasMany(u => u.FavoriteProducts)
-      .WithMany(p => p.UsersWhoFavorited)
-      .UsingEntity(f => f.ToTable("Favorites"));
+    modelBuilder.Entity<Favorite>(entity =>
+    {
+      entity.HasKey(f => f.Id);
+
+      entity.Property(f => f.Id)
+            .ValueGeneratedOnAdd();
+
+      entity.HasOne(f => f.ShopUser)
+            .WithMany(u => u.Favorites)
+            .HasForeignKey(f => f.UserId);
+
+      entity.HasOne(f => f.Product)
+            .WithMany(p => p.Favorites)
+            .HasForeignKey(f => f.ProductId);
+    });
   }
 }

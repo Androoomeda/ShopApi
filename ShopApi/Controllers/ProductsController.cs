@@ -42,13 +42,6 @@ public class ProductsController : ControllerBase
     return Ok(product);
   }
 
-  [HttpPost("favorite")]
-  [Authorize]
-  public async Task<IActionResult> AddProductToFavorite()
-  {
-    return Ok("something");
-  }
-
   // [HttpPost]
   // TODO: сделать API для админа
 

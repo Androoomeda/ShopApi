@@ -4,14 +4,9 @@ using ShopApi.Entities;
 
 namespace ShopApi.Repositories;
 
-public class ShopUserRepository
+public class ShopUserRepository(ShopContext context)
 {
-  private readonly ShopContext _context;
-
-  public ShopUserRepository(ShopContext context)
-  {
-    this._context = context;
-  }
+  private readonly ShopContext _context = context;
 
   public async Task Add(string username, string email, string hashedPassword)
   {
