@@ -11,6 +11,6 @@ public class Product
   public required decimal Price { get; set; }
   public decimal? DiscountPrice { get; set; }
   public ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
-  public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
+  public ICollection<ShopUser> UsersWhoFavorited { get; set; } = new List<ShopUser>();
   public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
 }

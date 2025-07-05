@@ -8,5 +8,5 @@ public class ShopUser
   public string PasswordHash { get; set; }
 
   public Cart? Cart { get; set; }
-  public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
+  public ICollection<Product> FavoriteProducts{ get; set; } = new List<Product>();
 }
