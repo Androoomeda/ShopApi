@@ -13,6 +13,8 @@ public class FavoriteRepository(ShopContext context)
   {
     var favoriteProducts = await _context.Favorites
     .Where(f => f.UserId == userId)
+    .Include(f => f.Product)
+      .ThenInclude(p => p.ProductImages)
     .Select(f => f.Product.ToDto())
     .ToListAsync();
 

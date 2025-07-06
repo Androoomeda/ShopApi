@@ -20,7 +20,7 @@ public class ShopUserController : ControllerBase
     _options = options.Value;
   }
 
-  [HttpPost("register")]
+  [HttpPost("Register")]
   [ProducesResponseType(400)]
   [ProducesResponseType(500)]
   public async Task<IActionResult> Register([FromBody] RegisterUserDto request)
@@ -40,7 +40,7 @@ public class ShopUserController : ControllerBase
     }
   }
 
-  [HttpPost("login")]
+  [HttpPost("Login")]
   public async Task<IActionResult> Login([FromBody] LoginUserDto request)
   {
     try
@@ -50,8 +50,8 @@ public class ShopUserController : ControllerBase
       Response.Cookies.Append("tasty-cookies", token, new CookieOptions
       {
         HttpOnly = true,
-        Secure = true,
-        SameSite = SameSiteMode.None,
+        Secure = false, 
+        SameSite = SameSiteMode.Lax,
         Expires = DateTimeOffset.UtcNow.AddHours(_options.ExpiresHours)
       });
 

@@ -12,7 +12,6 @@ public class ProductRepository(ShopContext context)
   public async Task<List<ProductDto>> Get()
   {
     var products = await _context.Products
-    .Include(p => p.Category)
     .Include(p => p.ProductImages)
     .Select(p => p.ToDto())
     .ToListAsync();
