@@ -1,9 +1,6 @@
-using Microsoft.EntityFrameworkCore;
+
 using Microsoft.AspNetCore.Mvc;
-using ShopApi.Mapping;
-using ShopApi.Data;
 using ShopApi.Entities;
-using Microsoft.AspNetCore.Authorization;
 using ShopApi.Repositories;
 
 namespace ShopApi.Endpoints;
