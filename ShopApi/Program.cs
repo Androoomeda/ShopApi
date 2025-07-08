@@ -29,6 +29,7 @@ namespace ShopApi
       services.AddScoped<ProductRepository>();
       services.AddScoped<CategoryRepository>();
       services.AddScoped<FavoriteRepository>();
+      services.AddScoped<CartItemRepository>();
       services.AddScoped<ShopUserRepository>();
       services.AddScoped<ShopUserService>();
       services.AddScoped<JwtProvider>();

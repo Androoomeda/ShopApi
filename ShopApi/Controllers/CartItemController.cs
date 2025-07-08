@@ -1,42 +1,22 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ShopApi.Data;
 using ShopApi.Dtos;
 using ShopApi.Repositories;
 using ShopApi.Utilities;
-using System.Security.Claims;
 
 namespace ShopApi.Controllers;
 
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class FavoriteController : ControllerBase
+public class CartItemController : ControllerBase
 {
-  private readonly FavoriteRepository _favoriteRepository;
+  private readonly CartItemRepository _cartItemRepository;
 
-  public FavoriteController(FavoriteRepository favoriteRepository)
+  public CartItemController(CartItemRepository cartItemRepository)
   {
-    _favoriteRepository = favoriteRepository;
-  }
-
-  [HttpGet("get-ids")]
-  [ProducesResponseType(200)]
-  [ProducesResponseType(401)]
-  [ProducesResponseType(404)]
-  public async Task<IActionResult> GetIds()
-  {
-    var userId = GetUserId();
-
-    if (userId == null)
-      return Unauthorized();
-
-    var favorite = await _favoriteRepository.GetFavoritesIds((int)userId);
-
-    if (favorite == null)
-      return NotFound("Favorite products not found");
-
-    return Ok(favorite);
+    _cartItemRepository = cartItemRepository;
   }
 
   [HttpGet]
@@ -52,12 +32,12 @@ public class FavoriteController : ControllerBase
 
     try
     {
-      var favorite = await _favoriteRepository.GetFavoritesForUser((int)userId);
+      var carItems = await _cartItemRepository.GetCartItemsForUser((int)userId);
 
-      if (favorite == null)
-        return NotFound("Favorite products not found");
+      if (carItems == null)
+        return NotFound("Cart items not found");
 
-      return Ok(favorite);
+      return Ok(carItems);
     }
     catch (NotFoundException ex)
     {
@@ -65,15 +45,15 @@ public class FavoriteController : ControllerBase
     }
   }
 
-  [HttpPost("{productId}")]
+  [HttpPost("AddToCart")]
   [ProducesResponseType(200)]
   [ProducesResponseType(400)]
   [ProducesResponseType(401)]
   [ProducesResponseType(404)]
   [ProducesResponseType(409)]
-  public async Task<IActionResult> AddToFavorite(int productId)
+  public async Task<IActionResult> AddToCart([FromBody] NewCartItem newItem)
   {
-    if (productId <= 0)
+    if (newItem.ProductId <= 0 || newItem.ProductId <= 0)
       return BadRequest("Id не может быть меньше или равен 0");
 
     var userId = GetUserId();
@@ -83,7 +63,8 @@ public class FavoriteController : ControllerBase
 
     try
     {
-      var added = await _favoriteRepository.AddFavorite((int)userId, productId);
+      var added = await _cartItemRepository
+        .AddToCart((int)userId, newItem.ProductId, newItem.SizeId);
 
       if (!added) return Conflict("Этот товар уже в избранном");
 
@@ -100,7 +81,7 @@ public class FavoriteController : ControllerBase
   [ProducesResponseType(400)]
   [ProducesResponseType(401)]
   [ProducesResponseType(404)]
-  public async Task<IActionResult> RemoveFavorite(int productId)
+  public async Task<IActionResult> RemoveCartItem(int productId)
   {
     if (productId <= 0)
       return BadRequest("Id не может быть меньше или равен 0");
@@ -112,7 +93,7 @@ public class FavoriteController : ControllerBase
 
     try
     {
-      await _favoriteRepository.RemoveFavorite((int)userId, productId);
+      await _cartItemRepository.RemoveCart((int)userId, productId);
 
       return Ok();
     }
