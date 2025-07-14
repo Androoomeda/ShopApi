@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using ShopApi.Dtos;
 using ShopApi.Repositories;
 using ShopApi.Utilities;
@@ -9,7 +10,7 @@ public class ShopUserService
   private readonly ShopUserRepository shopUserRepository;
   private readonly JwtProvider jwtProvider;
 
-  public ShopUserService(ShopUserRepository shopUserRepository,  JwtProvider jwtProvider)
+  public ShopUserService(ShopUserRepository shopUserRepository, JwtProvider jwtProvider)
   {
     this.shopUserRepository = shopUserRepository;
     this.jwtProvider = jwtProvider;
@@ -37,11 +38,18 @@ public class ShopUserService
 
     var isPasswordValid = BCrypt.Net.BCrypt.EnhancedVerify(request.Password, existingUser.PasswordHash);
 
-    if(!isPasswordValid)
+    if (!isPasswordValid)
       throw new FieldValidationException("password", "Неверный пароль");
 
     var token = jwtProvider.GenerateToken(existingUser);
 
     return token;
+  }
+
+  public async Task<UserInfoDto> GetUserInfo(int userId)
+  {
+    var userInfo = await shopUserRepository.GetUserInfo(userId);
+
+    return userInfo;
   }
 }

@@ -20,7 +20,7 @@ public class CartItemController : ControllerBase
   }
 
   [HttpGet]
-  [ProducesResponseType(200, Type = typeof(IEnumerable<ProductDto>))]
+  [ProducesResponseType(200, Type = typeof(IEnumerable<CartInfoDto>))]
   [ProducesResponseType(401)]
   [ProducesResponseType(404)]
   public async Task<IActionResult> Get()
@@ -67,6 +67,32 @@ public class CartItemController : ControllerBase
         .AddToCart((int)userId, newItem.ProductId, newItem.SizeId);
 
       if (!added) return Conflict("Этот товар уже в избранном");
+
+      return Ok();
+    }
+    catch (NotFoundException ex)
+    {
+      return NotFound(ex.Message);
+    }
+  }
+
+  [HttpPut("{cartItemId}")]
+  [ProducesResponseType(200)]
+  [ProducesResponseType(400)]
+  [ProducesResponseType(401)]
+  public async Task<IActionResult> EditCartItem([FromBody] UpdateCartItemDto cartItem, int cartItemId)
+  {
+    if (cartItemId <= 0)
+      return BadRequest("Id не может быть меньше или равен 0");
+
+    var userId = GetUserId();
+
+    if (userId == null)
+      return Unauthorized();
+
+    try 
+    {
+      await _cartItemRepository.EditCartItem((int)userId, cartItem.Quantity, cartItemId);
 
       return Ok();
     }

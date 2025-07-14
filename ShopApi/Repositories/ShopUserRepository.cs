@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using ShopApi.Data;
+using ShopApi.Dtos;
 using ShopApi.Entities;
+using ShopApi.Utilities;
 
 namespace ShopApi.Repositories;
 
@@ -38,5 +40,26 @@ public class ShopUserRepository(ShopContext context)
     .FirstOrDefaultAsync(u => u.Username == username);
 
     return user;
+  }
+
+  public async Task<UserInfoDto> GetUserInfo(int userId)
+  {
+    var user = await _context.ShopUsers
+    .AsNoTracking()
+    .FirstOrDefaultAsync(u => u.Id == userId);
+
+    if (user == null)
+      throw new NotFoundException("Пользователь не найден");
+
+    int favoriteCount = _context.Favorites.Where(f => f.UserId == user.Id).Count();
+    int cartItemsCount = _context.CartItems.Where(ci => ci.Cart.UserId == user.Id).Sum(ci => ci.Quantity);
+
+    return new UserInfoDto
+    (
+      user.Username,
+      user.Email,
+      favoriteCount,
+      cartItemsCount
+    );
   }
 }

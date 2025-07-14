@@ -1,4 +1,5 @@
 
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using ShopApi.Entities;
 using ShopApi.Repositories;
@@ -34,15 +35,18 @@ public class ProductsController : ControllerBase
     if (productId <= 0)
       return BadRequest("Id не может быть меньше или равен 0");
 
-    var product = await _productRepository.GetById(productId);
+    var product = await _productRepository.GetById(productId, GetUserId());
 
     return Ok(product);
   }
 
-  // [HttpPost]
-  // TODO: сделать API для админа
+  private int? GetUserId()
+  {
+    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-  // [HttpPut]
+    if (int.TryParse(userId, out int userIdInt))
+      return userIdInt;
 
-  // [HttpDelete]
+    return null;
+  }
 }

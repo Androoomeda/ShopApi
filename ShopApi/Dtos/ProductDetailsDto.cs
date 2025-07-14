@@ -10,6 +10,8 @@ public record class ProductDetailsDto
   string CategoryName,
   decimal Price,
   decimal? DiscountPrice,
+  bool IsFavorite,
+  bool IsInCart,
   ICollection<string> ImagesPath,
-  ICollection<string> SizesLabel
+  ICollection<SizeDto> Sizes
 );

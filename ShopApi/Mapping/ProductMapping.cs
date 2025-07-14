@@ -18,7 +18,8 @@ public static class ProductMapping
     );
   }
 
-  public static ProductDetailsDto ToDetailsDto(this Product product, List<string> sizesLabel)
+  public static ProductDetailsDto ToDetailsDto(this Product product,
+    List<SizeDto> sizes, bool isFavorite, bool isInCart)
   {
     return new ProductDetailsDto
     (
@@ -30,8 +31,10 @@ public static class ProductMapping
       product.Category.Name,
       product.Price,
       product.DiscountPrice,
+      isFavorite,
+      isInCart,
       product.ProductImages.Select(img => img.ImagePath).ToList(),
-      sizesLabel
+      sizes
     );
   }
 }

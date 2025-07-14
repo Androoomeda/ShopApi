@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShopApi.Data;
 using ShopApi.Dtos;
@@ -11,75 +12,106 @@ public class CartItemRepository(ShopContext context)
 {
   private readonly ShopContext _context = context;
 
-  public async Task<List<ProductDto>> GetCartItemsForUser(int userId)
+  public async Task<CartInfoDto> GetCartItemsForUser(int userId)
   {
     await CheckUserExists(userId);
 
     var cart = await _context.Carts
-      .FirstOrDefaultAsync(c => c.UserId == userId);
-
-    if (cart == null)
+      .FirstOrDefaultAsync(c => c.UserId == userId) ??
       throw new NotFoundException("Cart not found");
 
     var cartItems = await _context.CartItems
         .Where(ci => ci.CartId == cart.Id)
         .Include(ci => ci.Product)
-        .Include(ci => ci.Product.ProductImages)
-        .Select(ci => ci.Product.ToDto())
+          .ThenInclude(p => p.ProductImages)
+        .Include(ci => ci.Size)
+        .Select(ci => ci.ToDto())
         .ToListAsync();
 
-    return cartItems;
+    var totalQuantity = cartItems.Sum(ci => ci.Quantity);
+    var totalOriginalPrice = cartItems.Sum(ci => ci.Product.Price * ci.Quantity);
+    var totalDiscount = cartItems.Sum(ci => (ci.Product.Price - ci.Product.DiscountPrice) * ci.Quantity);
+
+    decimal? totalPrice = 0;
+    if (totalDiscount > 0)
+      totalPrice = totalOriginalPrice - totalDiscount;
+    else
+      totalPrice = totalOriginalPrice;
+
+    return new CartInfoDto
+    (
+      cartItems,
+      totalQuantity,
+      totalOriginalPrice,
+      totalDiscount,
+      totalPrice
+    );
   }
 
-  public async Task<bool> AddToCart(int userId, int productId, int sizeId)
+  public async Task<CartInfoDto> AddToCart(int userId, int productId, int sizeId)
   {
     await CheckUserExists(userId);
     await CheckProductExists(productId);
 
     var cart = await _context.Carts
-      .FirstOrDefaultAsync(c => c.UserId == userId);
-
-    if (cart == null)
-      throw new NotFoundException("Cart not found");
+      .FirstOrDefaultAsync(c => c.UserId == userId) ??
+       throw new NotFoundException("Cart not found");
 
     bool exists = await _context.CartItems
-      .AnyAsync(ci => ci.CartId == cart.Id && ci.ProductId == productId);
+      .AnyAsync(ci => ci.CartId == cart.Id && ci.ProductId == productId && ci.SizeId == sizeId);
 
-    if (exists) return false;
-
-    var cartItem = new CartItem
+    if (!exists)
     {
-      Cart = cart,
-      ProductId = productId,
-      SizeId = sizeId,
-      Quantity = 1
-    };
+      var cartItem = new CartItem
+      {
+        Cart = cart,
+        ProductId = productId,
+        SizeId = sizeId,
+        Quantity = 1
+      };
 
-    await _context.CartItems.AddAsync(cartItem);
-    await _context.SaveChangesAsync();
-    return true;
+      await _context.CartItems.AddAsync(cartItem);
+      await _context.SaveChangesAsync();
+    }
+
+    return await GetCartItemsForUser(userId);
   }
 
-  public async Task<bool> RemoveCart(int userId, int productId)
+  public async Task<CartInfoDto> EditCartItem(int userId, int quantity, int cartItemId)
   {
     await CheckUserExists(userId);
-    await CheckProductExists(productId);
+
+    var cartItem = await _context.CartItems
+      .FirstOrDefaultAsync(ci => ci.Id == cartItemId) ??
+      throw new NotFoundException("CartItem not found");
+
+
+    if (quantity <= 0)
+      _context.CartItems.Remove(cartItem);
+    else
+      cartItem.Quantity = quantity;
+
+    await _context.SaveChangesAsync();
+
+    return await GetCartItemsForUser(userId);
+  }
+
+  public async Task<CartInfoDto> RemoveCart(int userId, int productId)
+  {
+    await CheckUserExists(userId);
 
     var cart = await _context.Carts
-      .FirstOrDefaultAsync(c => c.UserId == userId);
-
-    if (cart == null)
+      .FirstOrDefaultAsync(c => c.UserId == userId) ??
       throw new NotFoundException("Cart not found");
 
     var cartItem = await _context.CartItems
-      .FirstOrDefaultAsync(ci => ci.CartId == cart.Id && ci.ProductId == productId);
-
-    if (cartItem == null)
-      return false;
+      .FirstOrDefaultAsync(ci => ci.CartId == cart.Id && ci.ProductId == productId) ??
+      throw new NotFoundException("Cart item not found");
 
     _context.CartItems.Remove(cartItem);
     await _context.SaveChangesAsync();
-    return true;
+
+    return await GetCartItemsForUser(userId);
   }
 
   private async Task CheckUserExists(int userId)

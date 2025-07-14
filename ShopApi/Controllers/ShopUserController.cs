@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -20,7 +21,30 @@ public class ShopUserController : ControllerBase
     _options = options.Value;
   }
 
+  [HttpGet]
+  [ProducesResponseType(200, Type = typeof(UserInfoDto))]
+  [ProducesResponseType(401)]
+  [ProducesResponseType(500)]
+  public async Task<IActionResult> GetUserInfo()
+  {
+    var userId = GetUserId();
+
+    if (userId == null)
+      return Unauthorized();
+
+    try
+    {
+      var userInfo = await _shopUserService.GetUserInfo((int)userId);
+      return Ok(userInfo);
+    }
+    catch (Exception)
+    {
+      return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
+    }
+  }
+
   [HttpPost("Register")]
+  [ProducesResponseType(200)]
   [ProducesResponseType(400)]
   [ProducesResponseType(500)]
   public async Task<IActionResult> Register([FromBody] RegisterUserDto request)
@@ -41,6 +65,9 @@ public class ShopUserController : ControllerBase
   }
 
   [HttpPost("Login")]
+  [ProducesResponseType(200)]
+  [ProducesResponseType(400)]
+  [ProducesResponseType(500)]
   public async Task<IActionResult> Login([FromBody] LoginUserDto request)
   {
     try
@@ -50,7 +77,7 @@ public class ShopUserController : ControllerBase
       Response.Cookies.Append("tasty-cookies", token, new CookieOptions
       {
         HttpOnly = true,
-        Secure = false, 
+        Secure = false,
         SameSite = SameSiteMode.Lax,
         Expires = DateTimeOffset.UtcNow.AddHours(_options.ExpiresHours)
       });
@@ -65,5 +92,15 @@ public class ShopUserController : ControllerBase
     {
       return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
     }
+  }
+
+  private int? GetUserId()
+  {
+    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    if (int.TryParse(userId, out int userIdInt))
+      return userIdInt;
+
+    return null;
   }
 }
