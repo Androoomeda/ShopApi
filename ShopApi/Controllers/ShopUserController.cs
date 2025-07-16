@@ -94,6 +94,23 @@ public class ShopUserController : ControllerBase
     }
   }
 
+  [HttpPost("Logout")]
+  [ProducesResponseType(200)]
+  [ProducesResponseType(500)]
+  public async Task<IActionResult> Logout()
+  {
+    try
+    {
+      Response.Cookies.Delete("tasty-cookies");
+
+      return Ok("Logget out successfully");
+    }
+    catch (Exception)
+    {
+      return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
+    }
+  }
+
   private int? GetUserId()
   {
     var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

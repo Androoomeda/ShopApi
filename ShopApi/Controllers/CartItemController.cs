@@ -63,12 +63,9 @@ public class CartItemController : ControllerBase
 
     try
     {
-      var added = await _cartItemRepository
-        .AddToCart((int)userId, newItem.ProductId, newItem.SizeId);
+      var data = await _cartItemRepository.AddToCart((int)userId, newItem.ProductId, newItem.SizeId);
 
-      if (!added) return Conflict("Этот товар уже в избранном");
-
-      return Ok();
+      return Ok(data);
     }
     catch (NotFoundException ex)
     {
@@ -92,9 +89,9 @@ public class CartItemController : ControllerBase
 
     try 
     {
-      await _cartItemRepository.EditCartItem((int)userId, cartItem.Quantity, cartItemId);
+      var data = await _cartItemRepository.EditCartItem((int)userId, cartItem.Quantity, cartItemId);
 
-      return Ok();
+      return Ok(data);
     }
     catch (NotFoundException ex)
     {
@@ -119,9 +116,9 @@ public class CartItemController : ControllerBase
 
     try
     {
-      await _cartItemRepository.RemoveCart((int)userId, productId);
+      var data = await _cartItemRepository.RemoveCart((int)userId, productId);
 
-      return Ok();
+      return Ok(data);
     }
     catch (NotFoundException ex)
     {
