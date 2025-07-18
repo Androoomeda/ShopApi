@@ -1,8 +1,7 @@
-using System.Security.Claims;
-using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using ShopApi.Dtos;
+using ShopApi.Extensions;
 using ShopApi.Services;
 using ShopApi.Utilities;
 
@@ -27,7 +26,7 @@ public class ShopUserController : ControllerBase
   [ProducesResponseType(500)]
   public async Task<IActionResult> GetUserInfo()
   {
-    var userId = GetUserId();
+    var userId = User.GetUserId();
 
     if (userId == null)
       return Unauthorized();
@@ -109,15 +108,5 @@ public class ShopUserController : ControllerBase
     {
       return StatusCode(500, new { message = "Внутренняя ошибка сервера" });
     }
-  }
-
-  private int? GetUserId()
-  {
-    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    if (int.TryParse(userId, out int userIdInt))
-      return userIdInt;
-
-    return null;
   }
 }

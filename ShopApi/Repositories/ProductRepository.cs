@@ -13,9 +13,10 @@ public class ProductRepository(ShopContext context)
   public async Task<List<ProductDto>> Get()
   {
     var products = await _context.Products
-    .Include(p => p.ProductImages)
-    .Select(p => p.ToDto())
-    .ToListAsync();
+      .AsNoTracking()
+      .Include(p => p.ProductImages)
+      .Select(p => p.ToDto())
+      .ToListAsync();
 
     return products;
   }
@@ -23,17 +24,19 @@ public class ProductRepository(ShopContext context)
   public async Task<ProductDetailsDto> GetById(int id, int? userId = null)
   {
     var product = await _context.Products
-    .Include(p => p.Category)
-    .Include(p => p.ProductImages)
-    .Where(p => p.Id == id)
-    .FirstOrDefaultAsync();
+      .AsNoTracking()
+      .Include(p => p.Category)
+      .Include(p => p.ProductImages)
+      .Where(p => p.Id == id)
+      .FirstOrDefaultAsync();
 
     if (product == null)
       throw new NotFoundException("Product not found");
 
-    List<SizeDto> sizes = new();
+    List<SizeDto> sizes = [];
 
     sizes = await _context.Sizes
+      .AsNoTracking()
       .Where(s => s.SizeType == product.Category.SizeType)
       .Select(s => s.ToDto())
       .ToListAsync();
@@ -47,7 +50,8 @@ public class ProductRepository(ShopContext context)
         .AnyAsync(f => f.UserId == userId && f.ProductId == product.Id);
 
       var cart = await _context.Carts
-           .FirstOrDefaultAsync(c => c.UserId == userId);
+        .AsNoTracking()
+        .FirstOrDefaultAsync(c => c.UserId == userId);
 
       if (cart != null)
         isInCart = await _context.CartItems

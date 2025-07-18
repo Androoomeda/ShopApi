@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using ShopApi.Entities;
+using ShopApi.Extensions;
 using ShopApi.Repositories;
 
 namespace ShopApi.Endpoints;
@@ -35,18 +36,8 @@ public class ProductsController : ControllerBase
     if (productId <= 0)
       return BadRequest("Id не может быть меньше или равен 0");
 
-    var product = await _productRepository.GetById(productId, GetUserId());
+    var product = await _productRepository.GetById(productId, User.GetUserId());
 
     return Ok(product);
-  }
-
-  private int? GetUserId()
-  {
-    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    if (int.TryParse(userId, out int userIdInt))
-      return userIdInt;
-
-    return null;
   }
 }

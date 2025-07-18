@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ShopApi.Data;
 using ShopApi.Dtos;
+using ShopApi.Extensions;
 using ShopApi.Repositories;
 using ShopApi.Utilities;
-using System.Security.Claims;
 
 namespace ShopApi.Controllers;
 
@@ -26,7 +25,7 @@ public class FavoriteController : ControllerBase
   [ProducesResponseType(404)]
   public async Task<IActionResult> GetIds()
   {
-    var userId = GetUserId();
+    var userId = User.GetUserId();
 
     if (userId == null)
       return Unauthorized();
@@ -45,7 +44,7 @@ public class FavoriteController : ControllerBase
   [ProducesResponseType(404)]
   public async Task<IActionResult> Get()
   {
-    var userId = GetUserId();
+    var userId = User.GetUserId();
 
     if (userId == null)
       return Unauthorized();
@@ -76,7 +75,7 @@ public class FavoriteController : ControllerBase
     if (productId <= 0)
       return BadRequest("Id не может быть меньше или равен 0");
 
-    var userId = GetUserId();
+    var userId = User.GetUserId();
 
     if (userId == null)
       return Unauthorized();
@@ -105,7 +104,7 @@ public class FavoriteController : ControllerBase
     if (productId <= 0)
       return BadRequest("Id не может быть меньше или равен 0");
 
-    var userId = GetUserId();
+    var userId = User.GetUserId();
 
     if (userId == null)
       return Unauthorized();
@@ -120,15 +119,5 @@ public class FavoriteController : ControllerBase
     {
       return NotFound(ex.Message);
     }
-  }
-
-  private int? GetUserId()
-  {
-    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    if (int.TryParse(userId, out int userIdInt))
-      return userIdInt;
-
-    return null;
   }
 }

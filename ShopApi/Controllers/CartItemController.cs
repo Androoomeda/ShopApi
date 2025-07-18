@@ -1,7 +1,7 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShopApi.Dtos;
+using ShopApi.Extensions;
 using ShopApi.Repositories;
 using ShopApi.Utilities;
 
@@ -25,7 +25,7 @@ public class CartItemController : ControllerBase
   [ProducesResponseType(404)]
   public async Task<IActionResult> Get()
   {
-    var userId = GetUserId();
+    var userId = User.GetUserId();
 
     if (userId == null)
       return Unauthorized();
@@ -45,7 +45,7 @@ public class CartItemController : ControllerBase
     }
   }
 
-  [HttpPost("AddToCart")]
+  [HttpPost]
   [ProducesResponseType(200)]
   [ProducesResponseType(400)]
   [ProducesResponseType(401)]
@@ -56,7 +56,7 @@ public class CartItemController : ControllerBase
     if (newItem.ProductId <= 0 || newItem.ProductId <= 0)
       return BadRequest("Id не может быть меньше или равен 0");
 
-    var userId = GetUserId();
+    var userId = User.GetUserId();
 
     if (userId == null)
       return Unauthorized();
@@ -82,7 +82,7 @@ public class CartItemController : ControllerBase
     if (cartItemId <= 0)
       return BadRequest("Id не может быть меньше или равен 0");
 
-    var userId = GetUserId();
+    var userId = User.GetUserId();
 
     if (userId == null)
       return Unauthorized();
@@ -109,7 +109,7 @@ public class CartItemController : ControllerBase
     if (productId <= 0)
       return BadRequest("Id не может быть меньше или равен 0");
 
-    var userId = GetUserId();
+    var userId = User.GetUserId();
 
     if (userId == null)
       return Unauthorized();
@@ -124,15 +124,5 @@ public class CartItemController : ControllerBase
     {
       return NotFound(ex.Message);
     }
-  }
-
-  private int? GetUserId()
-  {
-    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    if (int.TryParse(userId, out int userIdInt))
-      return userIdInt;
-
-    return null;
   }
 }

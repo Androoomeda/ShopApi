@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShopApi.Data;
 using ShopApi.Dtos;
@@ -17,16 +16,18 @@ public class CartItemRepository(ShopContext context)
     await CheckUserExists(userId);
 
     var cart = await _context.Carts
+      .AsNoTracking()
       .FirstOrDefaultAsync(c => c.UserId == userId) ??
       throw new NotFoundException("Cart not found");
 
     var cartItems = await _context.CartItems
-        .Where(ci => ci.CartId == cart.Id)
-        .Include(ci => ci.Product)
-          .ThenInclude(p => p.ProductImages)
-        .Include(ci => ci.Size)
-        .Select(ci => ci.ToDto())
-        .ToListAsync();
+      .AsNoTracking()
+      .Where(ci => ci.CartId == cart.Id)
+      .Include(ci => ci.Product)
+        .ThenInclude(p => p.ProductImages)
+      .Include(ci => ci.Size)
+      .Select(ci => ci.ToDto())
+      .ToListAsync();
 
     var totalQuantity = cartItems.Sum(ci => ci.Quantity);
     var totalOriginalPrice = cartItems.Sum(ci => ci.Product.Price * ci.Quantity);
@@ -84,7 +85,6 @@ public class CartItemRepository(ShopContext context)
     var cartItem = await _context.CartItems
       .FirstOrDefaultAsync(ci => ci.Id == cartItemId) ??
       throw new NotFoundException("CartItem not found");
-
 
     if (quantity <= 0)
       _context.CartItems.Remove(cartItem);

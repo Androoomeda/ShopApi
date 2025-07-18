@@ -13,6 +13,7 @@ public class FavoriteRepository(ShopContext context)
   public async Task<List<Favorite>> GetFavoritesIds(int userId)
   {
     var favoriteProducts = await _context.Favorites
+      .AsNoTracking()
       .Where(f => f.UserId == userId)
       .ToListAsync();
 
@@ -24,6 +25,7 @@ public class FavoriteRepository(ShopContext context)
     await CheckUserExists(userId);
 
     var favoriteProducts = await _context.Favorites
+      .AsNoTracking()
       .Where(f => f.UserId == userId)
       .Include(f => f.Product)
         .ThenInclude(p => p.ProductImages)
@@ -59,7 +61,7 @@ public class FavoriteRepository(ShopContext context)
       .FirstOrDefaultAsync(f => f.ProductId == productId && f.UserId == userId);
 
     if (favorite == null)
-      return false;
+      throw new NotFoundException("Favorite not found");
 
     _context.Favorites.Remove(favorite);
     await _context.SaveChangesAsync();

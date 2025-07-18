@@ -26,13 +26,7 @@ namespace ShopApi
       var connectionString = builder.Configuration.GetConnectionString("Shop");
       services.AddSqlServer<ShopContext>(connectionString);
 
-      services.AddScoped<ProductRepository>();
-      services.AddScoped<CategoryRepository>();
-      services.AddScoped<FavoriteRepository>();
-      services.AddScoped<CartItemRepository>();
-      services.AddScoped<ShopUserRepository>();
-      services.AddScoped<ShopUserService>();
-      services.AddScoped<JwtProvider>();
+      services.AddApplicationServices();
 
       services.AddCors(options =>
       {
