@@ -1,6 +1,5 @@
-
-using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using ShopApi.Dtos;
 using ShopApi.Entities;
 using ShopApi.Extensions;
 using ShopApi.Repositories;
@@ -19,7 +18,7 @@ public class ProductsController : ControllerBase
   }
 
   [HttpGet]
-  [ProducesResponseType(200, Type = typeof(IEnumerable<Product>))]
+  [ProducesResponseType(200, Type = typeof(IEnumerable<ProductDto>))]
   public async Task<IActionResult> GetProducts()
   {
     var products = await _productRepository.Get();
@@ -28,7 +27,7 @@ public class ProductsController : ControllerBase
   }
 
   [HttpGet("{productId}")]
-  [ProducesResponseType(200, Type = typeof(Product))]
+  [ProducesResponseType(200, Type = typeof(ProductDetailsDto))]
   [ProducesResponseType(400)]
   [ProducesResponseType(404)]
   public async Task<IActionResult> GetProductById(int productId)
